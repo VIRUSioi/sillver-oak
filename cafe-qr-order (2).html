@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Silver Oak — Order</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --espresso:#2B1B12;
+    --cream:#F5EDE0;
+    --paper:#FFFBF5;
+    --gold:#C9A961;
+    --sage:#7A8B6F;
+    --rust:#B5533C;
+    --line: rgba(43,27,18,0.18);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--cream);
+    color:var(--espresso);
+    font-family:'Work Sans', sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:980px;margin:0 auto;padding:32px 20px 80px;}
+  header.top{
+    border-bottom:2px solid var(--espresso);
+    padding-bottom:16px;margin-bottom:8px;
+  }
+  .brand{font-family:'Fraunces', serif;font-weight:700;font-size:34px;letter-spacing:-0.01em;}
+  .brand small{display:block;font-family:'Work Sans',sans-serif;font-weight:500;font-size:13px;color:var(--sage);margin-top:2px;letter-spacing:0.02em;}
+
+  .table-note{
+    font-size:14px;color:var(--sage);margin:20px 0 24px;padding:10px 14px;
+    border:1px dashed var(--sage);border-radius:6px;display:inline-block;
+  }
+
+  .layout{display:grid;grid-template-columns:1.5fr 1fr;gap:40px;}
+  @media (max-width:760px){.layout{grid-template-columns:1fr;}}
+
+  .category{font-family:'Fraunces',serif;font-weight:600;font-size:20px;margin:30px 0 8px;}
+  .category:first-of-type{margin-top:0;}
+  .category-section{display:none;}
+  .category-section.active{display:block;}
+
+  .filter-bar{
+    display:flex;gap:8px;overflow-x:auto;padding-bottom:10px;margin-bottom:22px;
+    -webkit-overflow-scrolling:touch;scrollbar-width:none;
+  }
+  .filter-bar::-webkit-scrollbar{display:none;}
+  .filter-btn{
+    flex-shrink:0;border:1.5px solid var(--espresso);background:var(--paper);color:var(--espresso);
+    font-family:'Work Sans',sans-serif;font-size:13px;font-weight:500;padding:9px 16px;
+    border-radius:20px;cursor:pointer;white-space:nowrap;transition:background .15s,color .15s;
+  }
+  .filter-btn.active{background:var(--espresso);color:var(--paper);}
+
+  .item{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:14px 0;border-bottom:1px dotted var(--line);gap:12px;flex-wrap:wrap;
+  }
+  .item-info{flex:1;min-width:180px;}
+  .item-name{font-weight:600;font-size:16px;}
+  .item-desc{font-size:13px;color:#6b5d50;margin-top:2px;}
+  .item-price{font-variant-numeric:tabular-nums;font-size:15px;min-width:56px;text-align:right;}
+  .item-actions{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+
+  .add-btn{
+    width:32px;height:32px;border-radius:50%;border:1.5px solid var(--espresso);
+    background:var(--paper);color:var(--espresso);font-size:18px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+    transition:background .15s,color .15s,transform .1s;
+  }
+  .add-btn:hover{background:var(--espresso);color:var(--paper);}
+  .add-btn:active{transform:scale(0.9);}
+
+  .variant-btn{
+    border:1.5px solid var(--espresso);background:var(--paper);color:var(--espresso);
+    font-family:'Work Sans',sans-serif;font-size:13px;padding:6px 12px;border-radius:16px;
+    cursor:pointer;transition:background .15s,color .15s;white-space:nowrap;
+  }
+  .variant-btn:hover{background:var(--espresso);color:var(--paper);}
+
+  .ask-staff{font-size:13px;color:#9a8c7d;font-style:italic;}
+
+  .ticket{
+    background:var(--paper);border:1px solid var(--line);border-radius:10px;
+    padding:24px 22px;position:sticky;top:24px;
+  }
+  .ticket h3{font-family:'Fraunces',serif;font-size:20px;margin:0 0 4px;}
+  .ticket-sub{font-size:13px;color:var(--sage);margin-bottom:16px;}
+  .cart-row{
+    display:flex;justify-content:space-between;font-size:14px;padding:8px 0;
+    border-bottom:1px dotted var(--line);gap:8px;
+  }
+  .cart-row .rm{background:none;border:none;color:var(--rust);cursor:pointer;font-size:13px;padding:0 0 0 8px;}
+  .cart-empty{font-size:14px;color:#9a8c7d;padding:12px 0;}
+  .cart-total{display:flex;justify-content:space-between;font-weight:600;padding:14px 0 4px;font-size:16px;}
+  .field{margin-top:16px;}
+  .field label{display:block;font-size:12px;color:var(--sage);margin-bottom:5px;}
+  .field input{
+    width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:6px;
+    font-family:'Work Sans',sans-serif;font-size:14px;background:var(--cream);
+  }
+  .submit-btn{
+    width:100%;margin-top:18px;padding:13px;border:none;border-radius:6px;
+    background:var(--espresso);color:var(--paper);font-size:15px;font-weight:600;
+    cursor:pointer;transition:background .15s;
+  }
+  .submit-btn:hover{background:#1a1009;}
+  .submit-btn:disabled{background:#bcb2a4;cursor:not-allowed;}
+  .hint{font-size:12px;color:#9a8c7d;line-height:1.5;}
+  .download-btn{
+    width:100%;margin-top:10px;padding:10px 18px;border:1.5px solid var(--espresso);
+    background:none;border-radius:20px;font-size:13px;cursor:pointer;
+  }
+
+  .toast{
+    position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+    background:var(--espresso);color:var(--paper);padding:12px 22px;border-radius:24px;
+    font-size:14px;opacity:0;pointer-events:none;transition:opacity .25s, transform .25s;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(-6px);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">Silver Oak<small>GARDEN FAMILY RESTAURANT · QR ordering</small></div>
+  </header>
+
+  <div class="table-note" id="tableNote">Table 1 · scanned via QR</div>
+
+  <div class="filter-bar" id="filterBar"></div>
+
+  <div class="layout">
+    <div id="menuList"></div>
+
+    <div class="ticket">
+      <div id="orderForm">
+        <h3>Your order</h3>
+        <div class="ticket-sub">Reviewed here first — the kitchen is notified automatically</div>
+        <div id="cartRows"><div class="cart-empty">Nothing added yet</div></div>
+        <div class="cart-total" id="cartTotal" style="display:none;"><span>Total</span><span id="totalAmt">₹0</span></div>
+        <div class="field">
+          <label for="custName">Your name</label>
+          <input id="custName" placeholder="e.g. Riya">
+        </div>
+        <button class="submit-btn" id="submitBtn" disabled>Place order</button>
+      </div>
+
+      <div id="orderConfirm" style="display:none;">
+        <h3>Order placed</h3>
+        <div class="ticket-sub" id="orderNumLine">Order #—</div>
+        <div id="confirmRows"></div>
+        <div class="cart-total"><span>Total</span><span id="confirmTotal">₹0</span></div>
+        <div class="hint" style="margin-top:14px;">The kitchen has already been notified — no need to do anything else.</div>
+        <button class="download-btn" id="newOrderBtn">Place another order</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">Order placed</div>
+
+<script>
+// ---------- MENU DATA ----------
+// Edit this array to change the menu. Each category has items.
+// An item has either `price` (single price) or `variants` (array of {label, price}).
+const MENU = [
+  { category: "Chicken", items: [
+    { name:"Chicken Kharda", desc:"चिकन खर्डा", price:199 },
+    { name:"Chicken Thali", desc:"Rassa, Sukka Chicken, 1 Egg, Bhakari, Indrayani Rice, Soup", price:279 },
+    { name:"Chicken Varhadi Thali", desc:"Alani Soup, Chicken Curry Mix, Indrayani Rice, Bhakari", price:299 },
+    { name:"Chicken Kala Masala Thali", desc:"Chicken Sukka Kala Masala, Sukka Chicken, Kala Rassa, Soup, Indrayani Rice, Bhakari", price:299 },
+    { name:"Chicken Curry Gavran", desc:"Kala Masala Rassa 5pc, Tambda Rassa 5pc", price:199 },
+    { name:"Chicken Handi Kala Masala", desc:"Half 8 piece / Full 16 piece", variants:[{label:"Half",price:399},{label:"Full",price:749}] },
+    { name:"Chicken Handi Tambda Rassa", desc:"Half 8 piece / Full 16 piece", variants:[{label:"Half",price:399},{label:"Full",price:749}] },
+    { name:"Alani Bhat", desc:"", price:199 },
+    { name:"Anda Thali", desc:"2 Egg, Curry, Indrayani Rice, Bhakari", price:199 },
+  ]},
+  { category: "Mutton", items: [
+    { name:"Mutton Kharda", desc:"मटन खर्डा", price:259 },
+    { name:"Mutton Thali", desc:"Rassa, Sukka Mutton, Mutton Khima, 1 Egg, Bhakari, Indrayani Rice, Soup", price:399 },
+    { name:"Mutton Varhadi Thali", desc:"Alani Soup, Mutton Curry Mix, Indrayani Rice, Bhakari", price:349 },
+    { name:"Mutton Kala Masala Thali", desc:"Mutton Sukka Kala Masala, Kala Masala Rassa, Soup, Indrayani Rice, Bhakari", price:349 },
+    { name:"Mutton Curry Gavran", desc:"Kala Masala Rassa 5pc, Tambda Rassa 5pc", price:299 },
+    { name:"Mutton Handi Kala Masala", desc:"Half 8 piece / Full 16 piece", variants:[{label:"Half",price:499},{label:"Full",price:949}] },
+    { name:"Mutton Handi Tambda Rassa", desc:"Half 8 piece / Full 16 piece", variants:[{label:"Half",price:499},{label:"Full",price:949}] },
+    { name:"Alani Bhat", desc:"", price:299 },
+    { name:"Anda Thali", desc:"2 Egg, Curry, Indrayani Rice, Bhakari", price:199 },
+  ]},
+  { category: "Veg Thali", items: [
+    { name:"Veg Thali", desc:"Paneer, Mix Veg, Dal, Roast Papad, Achar, Gulab Jamun, Indrayani Rice, Roti/Bhakari", price:199 },
+  ]},
+  { category: "Indian Main Course — Chicken", items: [
+    { name:"Chicken Nawabi Handi", desc:"Silver Oak chef special", variants:[{label:"Half",price:449},{label:"Full",price:799}] },
+    { name:"Chicken Handi", desc:"Bone chicken pieces with flavour", variants:[{label:"Half",price:399},{label:"Full",price:699}] },
+    { name:"Chicken Lababdar", desc:"Tender pieces in a thick velvety tomato and onion-based gravy", price:449 },
+    { name:"Chicken Tangdi Masala", desc:"Chicken drumsticks braised in a spicy aromatic gravy", price:479 },
+    { name:"Chicken Angara Masala", desc:"Chicken smoky pieces in rich spicy gravy", price:349 },
+    { name:"Chicken Lahori", desc:"Chicken smoky pieces in rich spicy gravy", price:329 },
+    { name:"Chicken Kadai", desc:"Tender pieces of chicken in a thick velvety gravy", price:null },
+    { name:"Chicken Maharaja", desc:"Roasted chicken & chicken keema with thick rich creamy gravy", variants:[{label:"Half",price:459},{label:"Full",price:799}] },
+    { name:"Chicken Raigad Handi / Malwani", desc:"Silver Oak chef special", variants:[{label:"Half",price:449},{label:"Full",price:799}] },
+    { name:"Desi Chicken Curry", desc:"Silver Oak chef special", variants:[{label:"Half",price:449},{label:"Full",price:799}] },
+  ]},
+  { category: "Indian Main Course — Mutton", items: [
+    { name:"Desi Mutton Curry", desc:"Silver Oak chef special", variants:[{label:"Half",price:599},{label:"Full",price:999}] },
+    { name:"Mutton Ghee Roast Handi", desc:"Silver Oak chef special", variants:[{label:"Half",price:649},{label:"Full",price:1049}] },
+    { name:"Mutton Raigad Handi", desc:"Silver Oak chef special", variants:[{label:"Half",price:599},{label:"Full",price:999}] },
+    { name:"Mutton Malwani", desc:"Silver Oak chef special", variants:[{label:"Half",price:599},{label:"Full",price:999}] },
+    { name:"Mutton Handi", desc:"", variants:[{label:"Half",price:479},{label:"Full",price:849}] },
+    { name:"Mutton Rogan Josh", desc:"", price:399 },
+  ]},
+  { category: "Indian Main Course — Veg", items: [
+    { name:"Silver Oak Special Veg", desc:"Chef special, comes with two types of gravy", price:429 },
+    { name:"Veg Banjara M/S", desc:"Mix of all comes in medium spicy gravy", price:279 },
+    { name:"Veg Maratha / Veg Bhoona", desc:"Veg fritters in spicy and rich gravy", price:269 },
+    { name:"Veg Kolhapuri", desc:"Mix veg in spicy gravy and kolhapuri masala", price:299 },
+    { name:"Tawa Mushroom", desc:"Mushroom with capsicum, onion, tomato, Indian gravy", price:269 },
+    { name:"Veg Adraki", desc:"Mix vegetable with adrak ka tadka in medium spicy gravy", price:269 },
+    { name:"Soya Chap Masala", desc:"Tandoori soya chap in thick and spiced gravy", price:449 },
+    { name:"Veg Dariya", desc:"Silver Oak chef special", price:349 },
+    { name:"Kofta Sham Savera", desc:"Silver Oak chef special", price:299 },
+    { name:"Veg Patiyala", desc:"Rich Punjabi dish, stuffed papad rolls in onion-tomato gravy", price:279 },
+    { name:"Malai Kofta", desc:"Deep fried dumplings known as koftas, served in white gravy", price:279 },
+    { name:"Subz Miloni", desc:"Chef special", price:279 },
+    { name:"Veg Hangama", desc:"Mix veg in spicy gravy", price:279 },
+    { name:"Veg Handi / Diwani Handi", desc:"", variants:[{label:"Half",price:279},{label:"Full",price:449}] },
+    { name:"Veg Tawa", desc:"", price:259 },
+    { name:"Veg Haydrabadi", desc:"Mix veg in spicy spinach-based gravy", price:279 },
+  ]},
+  { category: "Soup", items: [
+    { name:"Cream of Mushroom Soup", desc:"Creamy garlicky flavour", price:179 },
+    { name:"Cream of Tomato Soup", desc:"Smooth consistency, light tanginess", price:179 },
+    { name:"Chinese Soup (Veg/Chicken)", desc:"Manchow / hot & sour / lemon coriander", variants:[{label:"Veg",price:159},{label:"Chicken",price:189}] },
+    { name:"Tom Yum Soup", desc:"", variants:[{label:"Half",price:199},{label:"Full",price:249}] },
+    { name:"Tom Kha Soup", desc:"Creamy coconut flavoured Thai soup", variants:[{label:"Half",price:159},{label:"Full",price:189}] },
+    { name:"Shorba", desc:"You name it, we'll make it", variants:[{label:"Tomato",price:159},{label:"Chicken",price:189},{label:"Mutton",price:209}] },
+  ]},
+  { category: "Salad / Papad / Raita", items: [
+    { name:"Green Salad", desc:"", price:159 },
+    { name:"Raita (Pineapple/Boondi/Mix Veg)", desc:"", price:169 },
+    { name:"Papad (Fried/Roasted/Masala)", desc:"Topped with tangy spicy onion-tomato mix", variants:[{label:"Regular",price:30},{label:"Masala",price:40}] },
+    { name:"Caesar Salad (Veg/Chicken)", desc:"Iceberg lettuce, herbed crouton, shaved parmesan", variants:[{label:"Veg",price:179},{label:"Chicken",price:229}] },
+    { name:"French Fries", desc:"", variants:[{label:"Plain",price:169},{label:"Peri Peri",price:189}] },
+    { name:"Cheese Cherry Pineapple", desc:"", price:199 },
+    { name:"Cheese Garlic Bread", desc:"", price:249 },
+    { name:"Masala Peanuts", desc:"", price:199 },
+  ]},
+];
+
+// ---------- RENDER MENU ----------
+const menuList = document.getElementById('menuList');
+const filterBar = document.getElementById('filterBar');
+
+// Short labels for the filter pills (long category names get abbreviated to fit)
+const SHORT_LABELS = {
+  "Chicken": "Chicken",
+  "Mutton": "Mutton",
+  "Veg Thali": "Veg Thali",
+  "Indian Main Course — Chicken": "Mains (Chicken)",
+  "Indian Main Course — Mutton": "Mains (Mutton)",
+  "Indian Main Course — Veg": "Mains (Veg)",
+  "Soup": "Soup",
+  "Salad / Papad / Raita": "Salad & Sides",
+};
+
+MENU.forEach((cat, catIndex)=>{
+  const section = document.createElement('div');
+  section.className = 'category-section';
+  section.dataset.catIndex = catIndex;
+
+  const catEl = document.createElement('div');
+  catEl.className = 'category';
+  catEl.textContent = cat.category;
+  section.appendChild(catEl);
+
+  cat.items.forEach(item=>{
+    const row = document.createElement('div');
+    row.className = 'item';
+
+    const info = document.createElement('div');
+    info.className = 'item-info';
+    info.innerHTML = `<div class="item-name">${item.name}</div>` + (item.desc ? `<div class="item-desc">${item.desc}</div>` : '');
+    row.appendChild(info);
+
+    if(item.price != null){
+      const price = document.createElement('div');
+      price.className = 'item-price';
+      price.textContent = '₹'+item.price;
+      row.appendChild(price);
+
+      const actions = document.createElement('div');
+      actions.className = 'item-actions';
+      const btn = document.createElement('button');
+      btn.className = 'add-btn';
+      btn.textContent = '+';
+      btn.addEventListener('click', ()=> addToCart(item.name, item.price));
+      actions.appendChild(btn);
+      row.appendChild(actions);
+    } else if(item.variants){
+      const actions = document.createElement('div');
+      actions.className = 'item-actions';
+      item.variants.forEach(v=>{
+        const b = document.createElement('button');
+        b.className = 'variant-btn';
+        b.textContent = `${v.label} ₹${v.price}`;
+        b.addEventListener('click', ()=> addToCart(`${item.name} (${v.label})`, v.price));
+        actions.appendChild(b);
+      });
+      row.appendChild(actions);
+    } else {
+      const ask = document.createElement('div');
+      ask.className = 'ask-staff';
+      ask.textContent = 'Ask staff for price';
+      row.appendChild(ask);
+    }
+
+    section.appendChild(row);
+  });
+
+  menuList.appendChild(section);
+
+  const pill = document.createElement('button');
+  pill.className = 'filter-btn';
+  pill.textContent = SHORT_LABELS[cat.category] || cat.category;
+  pill.addEventListener('click', ()=> showCategory(catIndex));
+  filterBar.appendChild(pill);
+});
+
+function showCategory(index){
+  document.querySelectorAll('.category-section').forEach(s=>{
+    s.classList.toggle('active', Number(s.dataset.catIndex) === index);
+  });
+  document.querySelectorAll('.filter-btn').forEach((b,i)=>{
+    b.classList.toggle('active', i === index);
+  });
+  menuList.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+showCategory(0);
+
+// ---------- CART ----------
+const cart = {}; // key (item label) -> {price, qty}
+const cartRows = document.getElementById('cartRows');
+const cartTotal = document.getElementById('cartTotal');
+const totalAmt = document.getElementById('totalAmt');
+const submitBtn = document.getElementById('submitBtn');
+
+function addToCart(name, price){
+  if(!cart[name]) cart[name] = {price, qty:0};
+  cart[name].qty += 1;
+  renderCart();
+}
+
+function renderCart(){
+  const names = Object.keys(cart);
+  if(names.length === 0){
+    cartRows.innerHTML = '<div class="cart-empty">Nothing added yet</div>';
+    cartTotal.style.display = 'none';
+    submitBtn.disabled = true;
+    return;
+  }
+  let total = 0;
+  cartRows.innerHTML = names.map(name=>{
+    const {price, qty} = cart[name];
+    total += price*qty;
+    return `<div class="cart-row">
+      <span>${qty} × ${name}</span>
+      <span>₹${price*qty} <button class="rm" data-name="${name}">remove</button></span>
+    </div>`;
+  }).join('');
+  totalAmt.textContent = '₹'+total;
+  cartTotal.style.display = 'flex';
+  submitBtn.disabled = false;
+
+  cartRows.querySelectorAll('.rm').forEach(rm=>{
+    rm.addEventListener('click',()=>{
+      delete cart[rm.dataset.name];
+      renderCart();
+    });
+  });
+}
+
+// ---------- TABLE NUMBER ----------
+// Table number comes from the URL, e.g. ?table=1 — each table's QR code should point here with its own number.
+const params = new URLSearchParams(window.location.search);
+const tableNum = params.get('table') || '1';
+document.getElementById('tableNote').textContent = `Table ${tableNum} · scanned via QR`;
+
+// ---------- NOTIFICATION (Telegram, silent, no redirect) ----------
+// Setup (free, ~2 min): message @BotFather on Telegram -> /newbot -> copy the token below.
+// Message your new bot once, then visit https://api.telegram.org/bot<token>/getUpdates to get your chat id.
+const TELEGRAM_BOT_TOKEN = "8996783416:AAGaXS62AjUrZP0T48eVgv2gHYLBxLqKxTQ";
+const TELEGRAM_CHAT_ID = "5504271530";
+
+function notifyViaTelegram(message){
+  if(!TELEGRAM_BOT_TOKEN || TELEGRAM_BOT_TOKEN.startsWith('PASTE_')) return;
+  fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: message })
+  }).catch(()=>{ /* fails silently — customer flow never blocks on this */ });
+}
+
+// ---------- SUBMIT ----------
+const orderForm = document.getElementById('orderForm');
+const orderConfirm = document.getElementById('orderConfirm');
+const newOrderBtn = document.getElementById('newOrderBtn');
+
+submitBtn.addEventListener('click', ()=>{
+  const name = document.getElementById('custName').value.trim() || 'Guest';
+  const lines = Object.entries(cart).map(([n,{price,qty}])=>`${qty} x ${n} (₹${price*qty})`);
+  const total = Object.values(cart).reduce((s,{price,qty})=>s+price*qty,0);
+  const orderNum = Math.floor(1000 + Math.random()*9000);
+
+  const message =
+`New order #${orderNum} — Table ${tableNum}
+Name: ${name}
+${lines.join('\n')}
+Total: ₹${total}`;
+
+  notifyViaTelegram(message);
+
+  document.getElementById('orderNumLine').textContent = `Order #${orderNum} · Table ${tableNum}`;
+  document.getElementById('confirmRows').innerHTML = Object.entries(cart).map(([n,{price,qty}])=>
+    `<div class="cart-row"><span>${qty} × ${n}</span><span>₹${price*qty}</span></div>`
+  ).join('');
+  document.getElementById('confirmTotal').textContent = '₹'+total;
+
+  orderForm.style.display = 'none';
+  orderConfirm.style.display = 'block';
+
+  const toast = document.getElementById('toast');
+  toast.textContent = 'Order placed — the kitchen has been notified';
+  toast.classList.add('show');
+  setTimeout(()=>toast.classList.remove('show'), 2500);
+});
+
+newOrderBtn.addEventListener('click', ()=>{
+  Object.keys(cart).forEach(k=>delete cart[k]);
+  renderCart();
+  document.getElementById('custName').value = '';
+  orderConfirm.style.display = 'none';
+  orderForm.style.display = 'block';
+});
+</script>
+</body>
+</html>
